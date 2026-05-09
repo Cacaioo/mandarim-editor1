@@ -8,6 +8,11 @@
 <!-- pinyin-pro: gera pinyin a partir de caracteres chineses -->
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.19.6/dist/index.js"></script>
 
+<!-- LXGW WenKai (霞鹜文楷) — fonte Kaiti livre/open-source, ideal para estudo
+     de caracteres. Carregada via CDN, funciona sem precisar instalar no SO. -->
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css">
+
 <style>
 :root {
     --primary: #C1272D;
@@ -133,7 +138,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 input.zh-input {
-    font-family: "STKaiti", "Kaiti SC", "KaiTi", "AR PL UKai CN", "Noto Sans CJK SC", serif;
+    font-family: 'LXGW WenKai', "STKaiti", "Kaiti SC", "KaiTi", "AR PL UKai CN", "Noto Sans CJK SC", serif;
     font-size: 16px;
 }
 
@@ -347,7 +352,7 @@ textarea.py-output {
 }
 
 .preview-content .zh-title {
-    font-family: "STKaiti", "Kaiti SC", "KaiTi", "AR PL UKai CN", "Noto Sans CJK SC", serif;
+    font-family: 'LXGW WenKai', "STKaiti", "Kaiti SC", "KaiTi", "AR PL UKai CN", "Noto Sans CJK SC", serif;
     font-size: 26pt;
     font-weight: 600;
     margin: 0;
@@ -418,7 +423,7 @@ textarea.py-output {
 
 .preview-content .zh-line .slot .zh-char {
     display: block;
-    font-family: "STKaiti", "Kaiti SC", "KaiTi", "AR PL UKai CN", "Noto Sans CJK SC", serif;
+    font-family: 'LXGW WenKai', "STKaiti", "Kaiti SC", "KaiTi", "AR PL UKai CN", "Noto Sans CJK SC", serif;
     font-size: 22pt;
     line-height: 1.05;
 }
