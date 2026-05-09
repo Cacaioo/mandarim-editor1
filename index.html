@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor de Estudo de Mandarim 🐲</title>
+
+<!-- pinyin-pro: gera pinyin a partir de caracteres chineses -->
+<script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.19.6/dist/index.js"></script>
+
+<style>
+:root {
+    --primary: #C1272D;
+    --secondary: #0071BC;
+    --accent: #2E8B57;
+    --orange: #E67E22;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --bg: #f9fafb;
+    --card: #ffffff;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+header.app-header {
+    background: linear-gradient(135deg, #C1272D 0%, #0071BC 60%, #2E8B57 100%);
+    color: white;
+    padding: 28px 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+header.app-header .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header.app-header h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+header.app-header p {
+    margin: 6px 0 0 0;
+    opacity: 0.9;
+    font-size: 14px;
+}
+
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+}
+
+.section h2 {
+    margin: 0 0 14px 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section h2::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: var(--primary);
+    border-radius: 2px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.field label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+input, textarea, select {
+    font: inherit;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    background: white;
+    color: var(--text);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    width: 100%;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(193, 39, 45, 0.1);
+}
+
+input.zh-input {
+    font-family: "STKaiti", "Kaiti SC", "KaiTi", "AR PL UKai CN", "Noto Sans CJK SC", serif;
+    font-size: 16px;
+}
+
+textarea {
+    font-family: 'SF Mono', Monaco, Menlo, monospace;
+    font-size: 12px;
+    resize: vertical;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    background: var(--primary);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font: inherit;
+    font-weight: 600;
+    font-size: 13px;
+    transition: transform 0.05s, background 0.15s, box-shadow 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+button:hover { background: #a01f24; }
+button:active { transform: translateY(1px); }
+button.secondary { background: var(--secondary); }
+button.secondary:hover { background: #005a99; }
+button.accent { background: var(--accent); }
+button.accent:hover { background: #226d44; }
+button.subtle {
+    background: #f3f4f6;
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+button.subtle:hover { background: #e5e7eb; }
+button.danger { background: #dc2626; }
+button.danger:hover { background: #b91c1c; }
+button.icon {
+    padding: 4px 8px;
+    font-size: 12px;
+    min-width: 30px;
+    justify-content: center;
+}
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.button-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Refrão */
+.refrao {
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 14px;
+    background: #fdfdfd;
+}
+
+.refrao-header {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.refrao-header input {
+    font-weight: 600;
+    flex: 1;
+}
+
+/* Linha */
+.line {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.line-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed var(--border);
+}
+
+.line-num {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+/* Segmento */
+.segment {
+    display: grid;
+    grid-template-columns: 1.2fr 1.2fr 1.5fr auto;
+    gap: 8px;
+    align-items: end;
+    padding: 8px;
+    border-radius: 6px;
+    background: #fafbfc;
+    margin-bottom: 6px;
+    border-left: 3px solid var(--seg-color, #ccc);
+}
+
+.segment .field label {
+    font-size: 10px;
+}
+
+.segment .seg-actions {
+    display: flex;
+    gap: 4px;
+    flex-wrap: nowrap;
+}
+
+@media (max-width: 720px) {
+    .segment {
+        grid-template-columns: 1fr;
+    }
+    .segment .seg-actions {
+        flex-wrap: wrap;
+    }
+}
+
+/* Action bar */
+.actions-bar {
+    position: sticky;
+    top: 0;
+    background: rgba(249, 250, 251, 0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    z-index: 10;
+    padding: 12px 0;
+    margin: -20px -20px 16px -20px;
+    padding: 14px 20px;
+}
+
+.actions-bar .button-row {
+    max-width: 1160px;
+    margin: 0 auto;
+    justify-content: flex-start;
+}
+
+.hidden { display: none !important; }
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #1f2937;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    z-index: 100;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast.error { background: #dc2626; }
+.toast.success { background: #059669; }
+
+/* Output sections */
+.output-section {
+    background: var(--card);
+}
+
+textarea.py-output {
+    font-size: 12px;
+    min-height: 300px;
+    background: #1e293b;
+    color: #e2e8f0;
+    border-color: #334155;
+}
+
+/* Preview area — espelha o estilo do PDF */
+.preview-content {
+    background: white;
+    padding: 30px 36px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-top: 12px;
+    color: #222;
+    font-size: 11pt;
+    line-height: 1.4;
+    font-family: "DejaVu Sans", "Liberation Sans", sans-serif;
+}
+
+.preview-content .doc-header {
+    border-bottom: 1.5pt solid #333;
+    padding-bottom: 8pt;
+    margin-bottom: 14pt;
+}
+
+.preview-content .zh-title {
+    font-family: "STKaiti", "Kaiti SC", "KaiTi", "AR PL UKai CN", "Noto Sans CJK SC", serif;
+    font-size: 26pt;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.preview-content .pinyin-title {
+    font-style: italic;
+    color: #555;
+    font-size: 13pt;
+    margin-top: 4pt;
+}
+
+.preview-content .artist {
+    color: #777;
+    font-size: 10pt;
+    margin-top: 4pt;
+}
+
+.preview-content .legend {
+    font-style: italic;
+    color: #666;
+    font-size: 9pt;
+    margin-top: 8pt;
+}
+
+.preview-content .refrao-block {
+    margin-bottom: 18pt;
+    page-break-inside: avoid;
+}
+
+.preview-content .refrao-block h3 {
+    font-size: 13pt;
+    font-weight: 700;
+    margin: 0 0 6pt 0;
+    border-bottom: 0.5pt solid #ccc;
+    padding-bottom: 3pt;
+}
+
+.preview-content .pv-line {
+    margin-bottom: 12pt;
+}
+
+.preview-content .pt-line {
+    font-weight: 700;
+    font-size: 11pt;
+    margin-bottom: 6pt;
+    line-height: 1.4;
+}
+
+.preview-content .pt-line .sep {
+    color: #aaa;
+    font-weight: 400;
+    margin: 0 4pt;
+}
+
+.preview-content .zh-line {
+    line-height: 1;
+}
+
+.preview-content .zh-line .slot {
+    display: inline-block;
+    text-align: center;
+    vertical-align: top;
+    margin: 0 1pt;
+    min-width: 1.2em;
+}
+
+.preview-content .zh-line .slot .zh-char {
+    display: block;
+    font-family: "STKaiti", "Kaiti SC", "KaiTi", "AR PL UKai CN", "Noto Sans CJK SC", serif;
+    font-size: 22pt;
+    line-height: 1.05;
+}
+
+.preview-content .zh-line .slot .py-char {
+    display: block;
+    font-size: 9pt;
+    line-height: 1.4;
+    margin-top: 2pt;
+    font-weight: 500;
+}
+
+.preview-content .zh-line .seg-gap {
+    display: inline-block;
+    width: 8pt;
+}
+
+.preview-content .caligrafia-rotulo {
+    font-style: italic;
+    color: #666;
+    font-size: 9pt;
+    margin: 10pt 0 4pt 0;
+}
+
+.practice-grid {
+    display: block;
+    margin-top: 4pt;
+}
+
+.help-text {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.help-text code {
+    background: #f3f4f6;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+}
+
+.api-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    margin-left: auto;
+}
+
+.api-status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+}
+
+.api-status.loading::before {
+    background: #f59e0b;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 24px;
+    color: var(--muted);
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+}
+
+@media print {
+    header.app-header,
+    .actions-bar,
+    .section:not(.preview-only),
+    button {
+        display: none !important;
+    }
+    main { padding: 0; max-width: none; }
+    .preview-content {
+        border: none;
+        padding: 0;
+    }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+    <div class="wrap">
+        <h1>🐲 Editor de Estudo de Mandarim</h1>
+        <p>Crie material de estudo com tradução em português, pinyin e prática de caligrafia. Compatível com o script Python <code>gerador_mandarim.py</code>.</p>
+    </div>
+</header>
+
+<main>
+    <div class="actions-bar">
+        <div class="button-row">
+            <button id="btn-generate" class="accent">📋 Gerar CONFIG Python</button>
+            <button id="btn-preview" class="secondary">👁️ Pré-visualização</button>
+            <button id="btn-save-local" class="subtle">💾 Salvar</button>
+            <button id="btn-load-local" class="subtle">📂 Carregar</button>
+            <button id="btn-export-json" class="subtle">⬇️ Exportar JSON</button>
+            <button id="btn-import-json" class="subtle">⬆️ Importar JSON</button>
+            <button id="btn-reset" class="subtle">🗑️ Limpar</button>
+            <span class="api-status" id="api-status">tradutor pronto</span>
+        </div>
+    </div>
+
+    <section class="section">
+        <h2>Cabeçalho</h2>
+        <div class="form-grid">
+            <div class="field">
+                <label>Título (chinês)</label>
+                <input id="title-zh" class="zh-input" placeholder="时光背面的我">
+            </div>
+            <div class="field">
+                <label>Título (pinyin) <button type="button" class="icon subtle" id="auto-title-py" title="auto-pinyin">PY auto</button></label>
+                <input id="title-py" placeholder="Shíguāng bèimiàn de wǒ">
+            </div>
+            <div class="field">
+                <label>Artista</label>
+                <input id="artist" placeholder="鱼闪闪 BLING">
+            </div>
+            <div class="field">
+                <label>Arquivo de saída (.pdf)</label>
+                <input id="output" placeholder="estudo_mandarim.pdf" value="estudo_mandarim.pdf">
+            </div>
+            <div class="field">
+                <label>Linhas de prática (caligrafia)</label>
+                <input id="practice-rows" type="number" min="0" max="20" value="3">
+            </div>
+            <div class="field">
+                <label>Colunas de prática (caligrafia)</label>
+                <input id="practice-cols" type="number" min="4" max="30" value="14">
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2>Refrões</h2>
+        <p class="help-text">
+            Cada <strong>refrão</strong> contém <strong>linhas</strong>. Cada linha tem <strong>segmentos</strong> coloridos —
+            um segmento agrupa caracteres que vão aparecer numa mesma cor (ligando tradução, caracteres e pinyin).
+            <br>
+            Use os botões <code>中→PT</code> / <code>PT→中</code> para traduzir, e <code>PY</code> para gerar pinyin automaticamente.
+        </p>
+        <div id="refraos"></div>
+        <button id="btn-add-refrao" class="secondary">+ Adicionar refrão</button>
+    </section>
+
+    <section class="section output-section hidden" id="section-py-output">
+        <h2>CONFIG Python — cole no seu script</h2>
+        <p class="help-text">Substitua o dicionário <code>CONFIG = {...}</code> no seu <code>gerador_mandarim.py</code> pelo bloco abaixo, e rode <code>python3 gerador_mandarim.py</code>.</p>
+        <textarea id="py-output" class="py-output" readonly></textarea>
+        <div class="button-row" style="margin-top: 10px;">
+            <button id="btn-copy-py">📋 Copiar para a área de transferência</button>
+            <button id="btn-download-py" class="subtle">⬇️ Baixar como .py</button>
+        </div>
+    </section>
+
+    <section class="section preview-only hidden" id="section-preview">
+        <h2>Pré-visualização (use Cmd/Ctrl + P para imprimir como PDF)</h2>
+        <div id="preview-content" class="preview-content"></div>
+    </section>
+</main>
+
+<input type="file" id="file-input" accept=".json" style="display:none">
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================================
+// PALETA — mesmas cores do script Python (gerador_mandarim.py)
+// ============================================================================
+const PALETTE = [
+    "#C1272D", "#0071BC", "#2E8B57", "#E67E22",
+    "#6A1B9A", "#00838F", "#B8860B", "#8B4513",
+    "#1E3A5F", "#B83280", "#37474F", "#5D4037",
+];
+
+// ============================================================================
+// HELPERS
+// ============================================================================
+
+function $(sel, root = document) { return root.querySelector(sel); }
+function $$(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
+
+function escapeHtml(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+    }[c]));
+}
+
+function pyStr(s) {
+    // Escapa para string Python entre aspas duplas — preserva unicode (chinês,
+    // tons do pinyin) e cobre os escapes essenciais.
+    const escaped = String(s ?? "")
+        .replace(/\\/g, '\\\\')
+        .replace(/"/g, '\\"')
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '\\r')
+        .replace(/\t/g, '\\t');
+    return `"${escaped}"`;
+}
+
+function showToast(msg, type = '') {
+    const toast = $('#toast');
+    toast.textContent = msg;
+    toast.className = 'toast show ' + type;
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+function setApiStatus(state, text) {
+    const el = $('#api-status');
+    el.className = 'api-status ' + (state || '');
+    if (text) el.textContent = text;
+}
+
+// ============================================================================
+// PINYIN AUTOMÁTICO (pinyin-pro)
+// ============================================================================
+
+function autoPinyin(zh) {
+    if (!zh) return '';
+    if (typeof pinyinPro === 'undefined' || !pinyinPro.pinyin) {
+        showToast('Biblioteca pinyin-pro não carregou. Verifique sua conexão.', 'error');
+        return '';
+    }
+    return pinyinPro.pinyin(zh, { toneType: 'symbol', type: 'string' });
+}
+
+// ============================================================================
+// TRADUÇÃO (MyMemory API — gratuita, sem chave)
+// ============================================================================
+
+async function translate(text, from, to) {
+    if (!text || !text.trim()) return '';
+    setApiStatus('loading', 'traduzindo…');
+    const langPair = `${from}|${to}`;
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(langPair)}`;
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        setApiStatus('', 'tradutor pronto');
+        if (data.responseStatus !== 200 && data.responseStatus !== '200') {
+            throw new Error(data.responseDetails || 'erro desconhecido');
+        }
+        return (data.responseData && data.responseData.translatedText) || '';
+    } catch (e) {
+        setApiStatus('error', 'erro no tradutor');
+        showToast('Erro ao traduzir: ' + e.message, 'error');
+        return '';
+    }
+}
+
+// ============================================================================
+// MODELO — operações sobre o DOM
+// ============================================================================
+
+let segCounter = 0;
+
+function makeSegment(data = {}) {
+    const id = 'seg-' + (++segCounter);
+    const div = document.createElement('div');
+    div.className = 'segment';
+    div.dataset.id = id;
+    div.innerHTML = `
+        <div class="field">
+            <label>中文 (caracteres)</label>
+            <input class="seg-zh zh-input" placeholder="学中文">
+        </div>
+        <div class="field">
+            <label>Pinyin (separe sílabas com espaço)</label>
+            <input class="seg-py" placeholder="xué zhōng wén">
+        </div>
+        <div class="field">
+            <label>Português</label>
+            <input class="seg-pt" placeholder="Aprender chinês">
+        </div>
+        <div class="seg-actions">
+            <button type="button" class="icon subtle btn-zh-py" title="auto pinyin a partir do chinês">PY</button>
+            <button type="button" class="icon secondary btn-zh-pt" title="traduzir chinês → português">中→PT</button>
+            <button type="button" class="icon accent btn-pt-zh" title="traduzir português → chinês">PT→中</button>
+            <button type="button" class="icon danger btn-remove-seg" title="remover segmento">✕</button>
+        </div>
+    `;
+    if (data.zh) $('.seg-zh', div).value = data.zh;
+    if (data.py) $('.seg-py', div).value = data.py;
+    if (data.pt) $('.seg-pt', div).value = data.pt;
+
+    $('.btn-remove-seg', div).addEventListener('click', () => {
+        div.remove();
+        recolorAll();
+    });
+    $('.btn-zh-py', div).addEventListener('click', () => {
+        const zh = $('.seg-zh', div).value.trim();
+        if (!zh) return showToast('Preencha o chinês primeiro', 'error');
+        const py = autoPinyin(zh);
+        $('.seg-py', div).value = py;
+    });
+    $('.btn-zh-pt', div).addEventListener('click', async () => {
+        const zh = $('.seg-zh', div).value.trim();
+        if (!zh) return showToast('Preencha o chinês primeiro', 'error');
+        const pt = await translate(zh, 'zh-CN', 'pt');
+        if (pt) $('.seg-pt', div).value = pt;
+        // gera pinyin se ainda não houver
+        if (!$('.seg-py', div).value.trim()) {
+            $('.seg-py', div).value = autoPinyin(zh);
+        }
+    });
+    $('.btn-pt-zh', div).addEventListener('click', async () => {
+        const pt = $('.seg-pt', div).value.trim();
+        if (!pt) return showToast('Preencha o português primeiro', 'error');
+        const zh = await translate(pt, 'pt', 'zh-CN');
+        if (zh) {
+            $('.seg-zh', div).value = zh;
+            $('.seg-py', div).value = autoPinyin(zh);
+        }
+    });
+
+    // gera pinyin automaticamente ao sair do campo chinês (se pinyin vazio)
+    $('.seg-zh', div).addEventListener('blur', () => {
+        const zh = $('.seg-zh', div).value.trim();
+        const pyField = $('.seg-py', div);
+        if (zh && !pyField.value.trim()) {
+            pyField.value = autoPinyin(zh);
+        }
+    });
+
+    return div;
+}
+
+function makeLine(data = {}) {
+    const div = document.createElement('div');
+    div.className = 'line';
+    div.innerHTML = `
+        <div class="line-header">
+            <span class="line-num">Linha</span>
+            <div class="button-row">
+                <button type="button" class="icon subtle btn-add-seg">+ segmento</button>
+                <button type="button" class="icon danger btn-remove-line">✕ remover linha</button>
+            </div>
+        </div>
+        <div class="segments"></div>
+    `;
+    const segContainer = $('.segments', div);
+    const segments = (data.segments && data.segments.length) ? data.segments : [{}];
+    segments.forEach(s => segContainer.appendChild(makeSegment(s)));
+
+    $('.btn-add-seg', div).addEventListener('click', () => {
+        segContainer.appendChild(makeSegment());
+        recolorAll();
+    });
+    $('.btn-remove-line', div).addEventListener('click', () => {
+        if (confirm('Remover esta linha?')) {
+            div.remove();
+            renumberLines();
+            recolorAll();
+        }
+    });
+    return div;
+}
+
+let refraoCounter = 0;
+
+function makeRefrao(data = {}) {
+    refraoCounter++;
+    const div = document.createElement('div');
+    div.className = 'refrao';
+    div.innerHTML = `
+        <div class="refrao-header">
+            <input class="refrao-label" placeholder="Refrão ${refraoCounter}" value="${escapeHtml(data.label || ('Refrão ' + refraoCounter))}">
+            <button type="button" class="subtle btn-add-line">+ linha</button>
+            <button type="button" class="danger btn-remove-refrao">✕ remover refrão</button>
+        </div>
+        <div class="lines"></div>
+    `;
+    const linesContainer = $('.lines', div);
+    const lines = (data.lines && data.lines.length) ? data.lines : [{}];
+    lines.forEach(l => linesContainer.appendChild(makeLine(l)));
+
+    $('.btn-add-line', div).addEventListener('click', () => {
+        linesContainer.appendChild(makeLine());
+        renumberLines();
+        recolorAll();
+    });
+    $('.btn-remove-refrao', div).addEventListener('click', () => {
+        if (confirm('Remover este refrão inteiro?')) {
+            div.remove();
+            recolorAll();
+        }
+    });
+    return div;
+}
+
+function renumberLines() {
+    $$('.refrao').forEach(refrao => {
+        $$('.line', refrao).forEach((line, i) => {
+            $('.line-num', line).textContent = `Linha ${i + 1}`;
+        });
+    });
+}
+
+function recolorAll() {
+    // Atribui cor a cada segmento dentro de um refrão (sequencial),
+    // espelhando a função assign_colors do script Python.
+    $$('.refrao').forEach(refrao => {
+        let idx = 0;
+        $$('.segment', refrao).forEach(seg => {
+            const color = PALETTE[idx % PALETTE.length];
+            seg.style.setProperty('--seg-color', color);
+            seg.dataset.color = color;
+            idx++;
+        });
+    });
+}
+
+// ============================================================================
+// COLETA E CARREGAMENTO DE DADOS
+// ============================================================================
+
+function gatherData() {
+    const refraos = $$('.refrao').map(rDiv => ({
+        label: $('.refrao-label', rDiv).value,
+        lines: $$('.line', rDiv).map(lDiv => ({
+            segments: $$('.segment', lDiv).map(sDiv => ({
+                zh: $('.seg-zh', sDiv).value.trim(),
+                py: $('.seg-py', sDiv).value.trim(),
+                pt: $('.seg-pt', sDiv).value.trim(),
+            })).filter(s => s.zh || s.pt),
+        })).filter(l => l.segments.length > 0),
+    })).filter(r => r.lines.length > 0);
+
+    return {
+        title: $('#title-zh').value,
+        title_pinyin: $('#title-py').value,
+        artist: $('#artist').value,
+        output: $('#output').value || 'estudo_mandarim.pdf',
+        practice_rows: parseInt($('#practice-rows').value, 10) || 0,
+        practice_cols: parseInt($('#practice-cols').value, 10) || 14,
+        refraos,
+    };
+}
+
+function loadData(data) {
+    $('#title-zh').value = data.title || '';
+    $('#title-py').value = data.title_pinyin || '';
+    $('#artist').value = data.artist || '';
+    $('#output').value = data.output || 'estudo_mandarim.pdf';
+    $('#practice-rows').value = data.practice_rows ?? 3;
+    $('#practice-cols').value = data.practice_cols ?? 14;
+    refraoCounter = 0;
+    const container = $('#refraos');
+    container.innerHTML = '';
+    (data.refraos || []).forEach(r => container.appendChild(makeRefrao(r)));
+    recolorAll();
+}
+
+// ============================================================================
+// GERAÇÃO DO CONFIG PYTHON
+// ============================================================================
+
+function generatePython(data) {
+    const indent = '    ';
+    const lines = [];
+    lines.push('CONFIG = {');
+    lines.push(`${indent}"title": ${pyStr(data.title)},`);
+    lines.push(`${indent}"title_pinyin": ${pyStr(data.title_pinyin)},`);
+    lines.push(`${indent}"artist": ${pyStr(data.artist)},`);
+    lines.push(`${indent}"output": ${pyStr(data.output)},`);
+    lines.push('');
+    lines.push(`${indent}"refraos": [`);
+    data.refraos.forEach(r => {
+        lines.push(`${indent}${indent}{`);
+        lines.push(`${indent}${indent}${indent}"label": ${pyStr(r.label)},`);
+        lines.push(`${indent}${indent}${indent}"lines": [`);
+        r.lines.forEach(l => {
+            lines.push(`${indent}${indent}${indent}${indent}{`);
+            lines.push(`${indent}${indent}${indent}${indent}${indent}"segments": [`);
+            l.segments.forEach(s => {
+                lines.push(
+                    `${indent}${indent}${indent}${indent}${indent}${indent}` +
+                    `{"zh": ${pyStr(s.zh)}, "py": ${pyStr(s.py)}, "pt": ${pyStr(s.pt)}},`
+                );
+            });
+            lines.push(`${indent}${indent}${indent}${indent}${indent}],`);
+            lines.push(`${indent}${indent}${indent}${indent}},`);
+        });
+        lines.push(`${indent}${indent}${indent}],`);
+        lines.push(`${indent}${indent}},`);
+    });
+    lines.push(`${indent}],`);
+    lines.push('');
+    lines.push(`${indent}"practice_rows": ${data.practice_rows},`);
+    lines.push(`${indent}"practice_cols": ${data.practice_cols},`);
+    lines.push('}');
+    return lines.join('\n');
+}
+
+// ============================================================================
+// PRÉ-VISUALIZAÇÃO HTML
+// ============================================================================
+
+function buildPreview(data) {
+    let html = '';
+    html += '<header class="doc-header">';
+    html += `<h1 class="zh-title">${escapeHtml(data.title)}</h1>`;
+    if (data.title_pinyin) html += `<div class="pinyin-title">${escapeHtml(data.title_pinyin)}</div>`;
+    if (data.artist) html += `<div class="artist">— ${escapeHtml(data.artist)}</div>`;
+    html += '<div class="legend">Cores correspondentes ligam tradução (português), caractere e pinyin do mesmo segmento.</div>';
+    html += '</header>';
+
+    data.refraos.forEach(r => {
+        html += '<section class="refrao-block">';
+        html += `<h3>${escapeHtml(r.label)}</h3>`;
+        // atribui cores
+        let segIdx = 0;
+        r.lines.forEach(l => {
+            html += '<div class="pv-line">';
+            // linha em português
+            html += '<div class="pt-line">';
+            l.segments.forEach((s, i) => {
+                const color = PALETTE[(segIdx + i) % PALETTE.length];
+                if (i > 0) html += '<span class="sep">·</span>';
+                html += `<span style="color:${color}">${escapeHtml(s.pt)}</span>`;
+            });
+            html += '</div>';
+            // linha de caracteres + pinyin
+            html += '<div class="zh-line">';
+            l.segments.forEach((s, i) => {
+                const color = PALETTE[(segIdx + i) % PALETTE.length];
+                const chars = Array.from(s.zh);
+                let syls = (s.py || '').split(/\s+/).filter(Boolean);
+                while (syls.length < chars.length) syls.push('');
+                syls = syls.slice(0, chars.length);
+                chars.forEach((ch, j) => {
+                    html += `<span class="slot" style="color:${color}">`;
+                    html += `<span class="zh-char">${escapeHtml(ch)}</span>`;
+                    html += `<span class="py-char">${escapeHtml(syls[j] || '')}</span>`;
+                    html += '</span>';
+                });
+                if (i < l.segments.length - 1) html += '<span class="seg-gap"></span>';
+            });
+            html += '</div>';
+            html += '</div>';
+            segIdx += l.segments.length;
+        });
+        // grade de caligrafia (SVG)
+        if (data.practice_rows > 0) {
+            html += '<div class="caligrafia-rotulo">Caligrafia · 书法练习</div>';
+            html += buildPracticeGrid(data.practice_rows, data.practice_cols);
+        }
+        html += '</section>';
+    });
+
+    return html;
+}
+
+function buildPracticeGrid(rows, cols, cellSizeCm = 1.18) {
+    const unit = 100;
+    const w = cols * unit;
+    const h = rows * unit;
+    let parts = [`<svg class="practice-grid" width="${cols * cellSizeCm}cm" height="${rows * cellSizeCm}cm" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`];
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            const x = c * unit;
+            const y = r * unit;
+            parts.push(`<rect x="${x + 0.75}" y="${y + 0.75}" width="${unit - 1.5}" height="${unit - 1.5}" fill="none" stroke="#444" stroke-width="1.5"/>`);
+            const cx = x + unit / 2;
+            const cy = y + unit / 2;
+            parts.push(`<line x1="${cx}" y1="${y + 3}" x2="${cx}" y2="${y + unit - 3}" stroke="#bbb" stroke-width="0.6"/>`);
+            parts.push(`<line x1="${x + 3}" y1="${cy}" x2="${x + unit - 3}" y2="${cy}" stroke="#bbb" stroke-width="0.6"/>`);
+        }
+    }
+    parts.push('</svg>');
+    return parts.join('');
+}
+
+// ============================================================================
+// PERSISTÊNCIA
+// ============================================================================
+
+const LS_KEY = 'mandarim-editor-data';
+
+function saveLocal() {
+    const data = gatherData();
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+    showToast('Salvo no navegador', 'success');
+}
+
+function loadLocal() {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return showToast('Nenhum dado salvo encontrado', 'error');
+    try {
+        loadData(JSON.parse(raw));
+        showToast('Carregado', 'success');
+    } catch (e) {
+        showToast('Erro ao carregar: ' + e.message, 'error');
+    }
+}
+
+function exportJSON() {
+    const data = gatherData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (data.output || 'estudo_mandarim').replace(/\.pdf$/i, '') + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function importJSON() {
+    $('#file-input').click();
+}
+
+// ============================================================================
+// SETUP
+// ============================================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    // dados de exemplo iniciais
+    const example = {
+        title: '时光背面的我',
+        title_pinyin: 'Shíguāng bèimiàn de wǒ',
+        artist: '鱼闪闪 BLING',
+        output: 'estudo_mandarim.pdf',
+        practice_rows: 3,
+        practice_cols: 14,
+        refraos: [
+            {
+                label: 'Refrão de exemplo · 1',
+                lines: [
+                    {
+                        segments: [
+                            { zh: '学中文', py: 'xué zhōng wén', pt: 'Aprender chinês' },
+                            { zh: '很有意思', py: 'hěn yǒu yì si', pt: 'é muito interessante' },
+                        ]
+                    },
+                    {
+                        segments: [
+                            { zh: '我喜欢', py: 'wǒ xǐ huān', pt: 'Eu gosto' },
+                            { zh: '听音乐', py: 'tīng yīn yuè', pt: 'de ouvir música' },
+                        ]
+                    },
+                ]
+            }
+        ]
+    };
+
+    // tenta carregar do localStorage; senão usa exemplo
+    const stored = localStorage.getItem(LS_KEY);
+    if (stored) {
+        try { loadData(JSON.parse(stored)); }
+        catch { loadData(example); }
+    } else {
+        loadData(example);
+    }
+
+    // listeners da action bar
+    $('#btn-add-refrao').addEventListener('click', () => {
+        $('#refraos').appendChild(makeRefrao());
+        recolorAll();
+    });
+    $('#btn-generate').addEventListener('click', () => {
+        const data = gatherData();
+        $('#py-output').value = generatePython(data);
+        $('#section-py-output').classList.remove('hidden');
+        $('#section-py-output').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    $('#btn-preview').addEventListener('click', () => {
+        const data = gatherData();
+        $('#preview-content').innerHTML = buildPreview(data);
+        $('#section-preview').classList.remove('hidden');
+        $('#section-preview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    $('#btn-copy-py').addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText($('#py-output').value);
+            showToast('CONFIG copiado!', 'success');
+        } catch {
+            $('#py-output').select();
+            document.execCommand('copy');
+            showToast('CONFIG copiado!', 'success');
+        }
+    });
+    $('#btn-download-py').addEventListener('click', () => {
+        const txt = $('#py-output').value;
+        const blob = new Blob([txt], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'config_mandarim.py';
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+    $('#btn-save-local').addEventListener('click', saveLocal);
+    $('#btn-load-local').addEventListener('click', loadLocal);
+    $('#btn-export-json').addEventListener('click', exportJSON);
+    $('#btn-import-json').addEventListener('click', importJSON);
+    $('#btn-reset').addEventListener('click', () => {
+        if (confirm('Limpar tudo? (apaga só nesta tela; o que estiver salvo no navegador continua)')) {
+            loadData({
+                title: '', title_pinyin: '', artist: '',
+                output: 'estudo_mandarim.pdf',
+                practice_rows: 3, practice_cols: 14,
+                refraos: [{ label: 'Refrão 1', lines: [{ segments: [{}] }] }],
+            });
+        }
+    });
+    $('#auto-title-py').addEventListener('click', () => {
+        const zh = $('#title-zh').value.trim();
+        if (!zh) return showToast('Preencha o título em chinês primeiro', 'error');
+        $('#title-py').value = autoPinyin(zh);
+    });
+    $('#title-zh').addEventListener('blur', () => {
+        const zh = $('#title-zh').value.trim();
+        if (zh && !$('#title-py').value.trim()) {
+            $('#title-py').value = autoPinyin(zh);
+        }
+    });
+
+    $('#file-input').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+            try {
+                loadData(JSON.parse(ev.target.result));
+                showToast('JSON importado', 'success');
+            } catch (err) {
+                showToast('Erro ao ler JSON: ' + err.message, 'error');
+            }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+    });
+
+    renumberLines();
+    recolorAll();
+});
+</script>
+</body>
+</html>
