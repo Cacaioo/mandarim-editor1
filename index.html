@@ -271,6 +271,26 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     }
 }
 
+/* Botões de reordenar (▲ ▼) */
+.btn-move-up, .btn-move-down {
+    padding: 4px 7px;
+    min-width: 26px;
+    font-size: 11px;
+    line-height: 1;
+}
+
+/* Desabilita visualmente as setas nas bordas — CSS puro, sem estado em JS.
+   Os combinadores filho (>) evitam atingir as setas de elementos aninhados. */
+#refraos > .refrao:first-child > .refrao-header > .btn-move-up,
+#refraos > .refrao:last-child > .refrao-header > .btn-move-down,
+.lines > .line:first-child > .line-header .btn-move-up,
+.lines > .line:last-child > .line-header .btn-move-down,
+.segments > .segment:first-child > .seg-actions > .btn-move-up,
+.segments > .segment:last-child > .seg-actions > .btn-move-down {
+    opacity: 0.25;
+    pointer-events: none;
+}
+
 /* Action bar */
 .actions-bar {
     position: sticky;
@@ -577,6 +597,8 @@ textarea.py-output {
             um segmento agrupa caracteres que vão aparecer numa mesma cor (ligando tradução, caracteres e pinyin).
             <br>
             Use os botões <code>中→PT</code> / <code>PT→中</code> para traduzir, e <code>PY</code> para gerar pinyin automaticamente.
+            <br>
+            Use as setas <code>▲</code> / <code>▼</code> para reordenar refrões, linhas e segmentos.
         </p>
         <div id="refraos"></div>
         <button id="btn-add-refrao" class="secondary">+ Adicionar refrão</button>
@@ -713,6 +735,8 @@ function makeSegment(data = {}) {
             <input class="seg-pt" placeholder="Aprender chinês">
         </div>
         <div class="seg-actions">
+            <button type="button" class="icon subtle btn-move-up" title="mover segmento para cima">▲</button>
+            <button type="button" class="icon subtle btn-move-down" title="mover segmento para baixo">▼</button>
             <button type="button" class="icon subtle btn-zh-py" title="auto pinyin a partir do chinês">PY</button>
             <button type="button" class="icon secondary btn-zh-pt" title="traduzir chinês → português">中→PT</button>
             <button type="button" class="icon accent btn-pt-zh" title="traduzir português → chinês">PT→中</button>
@@ -727,6 +751,8 @@ function makeSegment(data = {}) {
         div.remove();
         recolorAll();
     });
+    $('.seg-actions .btn-move-up', div).addEventListener('click', () => moveItem(div, -1));
+    $('.seg-actions .btn-move-down', div).addEventListener('click', () => moveItem(div, 1));
     $('.btn-zh-py', div).addEventListener('click', () => {
         const zh = $('.seg-zh', div).value.trim();
         if (!zh) return showToast('Preencha o chinês primeiro', 'error');
@@ -772,6 +798,8 @@ function makeLine(data = {}) {
         <div class="line-header">
             <span class="line-num">Linha</span>
             <div class="button-row">
+                <button type="button" class="icon subtle btn-move-up" title="mover linha para cima">▲</button>
+                <button type="button" class="icon subtle btn-move-down" title="mover linha para baixo">▼</button>
                 <button type="button" class="icon subtle btn-add-seg">+ segmento</button>
                 <button type="button" class="icon danger btn-remove-line">✕ remover linha</button>
             </div>
@@ -793,6 +821,8 @@ function makeLine(data = {}) {
             recolorAll();
         }
     });
+    $('.line-header .btn-move-up', div).addEventListener('click', () => moveItem(div, -1));
+    $('.line-header .btn-move-down', div).addEventListener('click', () => moveItem(div, 1));
     return div;
 }
 
@@ -805,6 +835,8 @@ function makeRefrao(data = {}) {
     div.innerHTML = `
         <div class="refrao-header">
             <input class="refrao-label" placeholder="Refrão ${refraoCounter}" value="${escapeHtml(data.label || ('Refrão ' + refraoCounter))}">
+            <button type="button" class="icon subtle btn-move-up" title="mover refrão para cima">▲</button>
+            <button type="button" class="icon subtle btn-move-down" title="mover refrão para baixo">▼</button>
             <button type="button" class="subtle btn-add-line">+ linha</button>
             <button type="button" class="danger btn-remove-refrao">✕ remover refrão</button>
         </div>
@@ -825,6 +857,8 @@ function makeRefrao(data = {}) {
             recolorAll();
         }
     });
+    $('.refrao-header .btn-move-up', div).addEventListener('click', () => moveItem(div, -1));
+    $('.refrao-header .btn-move-down', div).addEventListener('click', () => moveItem(div, 1));
     return div;
 }
 
@@ -848,6 +882,22 @@ function recolorAll() {
             idx++;
         });
     });
+}
+
+function moveItem(el, dir) {
+    // Reordena um elemento entre seus irmãos do mesmo tipo (refrão, linha ou
+    // segmento). dir < 0 = sobe, dir > 0 = desce. No-op nas bordas.
+    // Como cada contêiner é homogêneo (.segments só tem .segment, etc.), os
+    // irmãos de elemento são sempre do mesmo tipo.
+    if (dir < 0) {
+        const prev = el.previousElementSibling;
+        if (prev) el.parentNode.insertBefore(el, prev);
+    } else {
+        const next = el.nextElementSibling;
+        if (next) el.parentNode.insertBefore(next, el);
+    }
+    renumberLines();
+    recolorAll();
 }
 
 // ============================================================================
