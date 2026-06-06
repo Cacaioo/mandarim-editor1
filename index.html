@@ -194,7 +194,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     align-items: center;
 }
 
-/* Refrão */
+/* Seção */
 .refrao {
     border: 1.5px solid var(--border);
     border-radius: 8px;
@@ -239,7 +239,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     font-weight: 600;
 }
 
-/* Segmento */
+/* Palavra */
 .segment {
     display: grid;
     grid-template-columns: 1.2fr 1.2fr 1.5fr auto;
@@ -591,17 +591,17 @@ textarea.py-output {
     </section>
 
     <section class="section">
-        <h2>Refrões</h2>
+        <h2>Seções</h2>
         <p class="help-text">
-            Cada <strong>refrão</strong> contém <strong>linhas</strong>. Cada linha tem <strong>segmentos</strong> coloridos —
-            um segmento agrupa caracteres que vão aparecer numa mesma cor (ligando tradução, caracteres e pinyin).
+            Cada <strong>seção</strong> contém <strong>linhas</strong>. Cada linha tem <strong>palavras</strong> coloridas —
+            uma palavra agrupa caracteres que vão aparecer numa mesma cor (ligando tradução, caracteres e pinyin).
             <br>
             Use os botões <code>中→PT</code> / <code>PT→中</code> para traduzir, e <code>PY</code> para gerar pinyin automaticamente.
             <br>
-            Use as setas <code>▲</code> / <code>▼</code> para reordenar refrões, linhas e segmentos.
+            Use as setas <code>▲</code> / <code>▼</code> para reordenar seções, linhas e palavras.
         </p>
         <div id="refraos"></div>
-        <button id="btn-add-refrao" class="secondary">+ Adicionar refrão</button>
+        <button id="btn-add-refrao" class="secondary">+ Adicionar seção</button>
     </section>
 
     <section class="section output-section hidden" id="section-py-output">
@@ -735,12 +735,12 @@ function makeSegment(data = {}) {
             <input class="seg-pt" placeholder="Aprender chinês">
         </div>
         <div class="seg-actions">
-            <button type="button" class="icon subtle btn-move-up" title="mover segmento para cima">▲</button>
-            <button type="button" class="icon subtle btn-move-down" title="mover segmento para baixo">▼</button>
+            <button type="button" class="icon subtle btn-move-up" title="mover palavra para cima">▲</button>
+            <button type="button" class="icon subtle btn-move-down" title="mover palavra para baixo">▼</button>
             <button type="button" class="icon subtle btn-zh-py" title="auto pinyin a partir do chinês">PY</button>
             <button type="button" class="icon secondary btn-zh-pt" title="traduzir chinês → português">中→PT</button>
             <button type="button" class="icon accent btn-pt-zh" title="traduzir português → chinês">PT→中</button>
-            <button type="button" class="icon danger btn-remove-seg" title="remover segmento">✕</button>
+            <button type="button" class="icon danger btn-remove-seg" title="remover palavra">✕</button>
         </div>
     `;
     if (data.zh) $('.seg-zh', div).value = data.zh;
@@ -800,7 +800,7 @@ function makeLine(data = {}) {
             <div class="button-row">
                 <button type="button" class="icon subtle btn-move-up" title="mover linha para cima">▲</button>
                 <button type="button" class="icon subtle btn-move-down" title="mover linha para baixo">▼</button>
-                <button type="button" class="icon subtle btn-add-seg">+ segmento</button>
+                <button type="button" class="icon subtle btn-add-seg">+ palavra</button>
                 <button type="button" class="icon danger btn-remove-line">✕ remover linha</button>
             </div>
         </div>
@@ -834,11 +834,11 @@ function makeRefrao(data = {}) {
     div.className = 'refrao';
     div.innerHTML = `
         <div class="refrao-header">
-            <input class="refrao-label" placeholder="Refrão ${refraoCounter}" value="${escapeHtml(data.label || ('Refrão ' + refraoCounter))}">
-            <button type="button" class="icon subtle btn-move-up" title="mover refrão para cima">▲</button>
-            <button type="button" class="icon subtle btn-move-down" title="mover refrão para baixo">▼</button>
+            <input class="refrao-label" placeholder="Seção ${refraoCounter}" value="${escapeHtml(data.label || ('Seção ' + refraoCounter))}">
+            <button type="button" class="icon subtle btn-move-up" title="mover seção para cima">▲</button>
+            <button type="button" class="icon subtle btn-move-down" title="mover seção para baixo">▼</button>
             <button type="button" class="subtle btn-add-line">+ linha</button>
-            <button type="button" class="danger btn-remove-refrao">✕ remover refrão</button>
+            <button type="button" class="danger btn-remove-refrao">✕ remover seção</button>
         </div>
         <div class="lines"></div>
     `;
@@ -852,7 +852,7 @@ function makeRefrao(data = {}) {
         recolorAll();
     });
     $('.btn-remove-refrao', div).addEventListener('click', () => {
-        if (confirm('Remover este refrão inteiro?')) {
+        if (confirm('Remover esta seção inteira?')) {
             div.remove();
             recolorAll();
         }
@@ -871,7 +871,7 @@ function renumberLines() {
 }
 
 function recolorAll() {
-    // Atribui cor a cada segmento dentro de um refrão (sequencial),
+    // Atribui cor a cada palavra dentro de uma seção (sequencial),
     // espelhando a função assign_colors do script Python.
     $$('.refrao').forEach(refrao => {
         let idx = 0;
@@ -885,8 +885,8 @@ function recolorAll() {
 }
 
 function moveItem(el, dir) {
-    // Reordena um elemento entre seus irmãos do mesmo tipo (refrão, linha ou
-    // segmento). dir < 0 = sobe, dir > 0 = desce. No-op nas bordas.
+    // Reordena um elemento entre seus irmãos do mesmo tipo (seção, linha ou
+    // palavra). dir < 0 = sobe, dir > 0 = desce. No-op nas bordas.
     // Como cada contêiner é homogêneo (.segments só tem .segment, etc.), os
     // irmãos de elemento são sempre do mesmo tipo.
     if (dir < 0) {
@@ -992,7 +992,7 @@ function buildPreview(data) {
     html += `<h1 class="zh-title">${escapeHtml(data.title)}</h1>`;
     if (data.title_pinyin) html += `<div class="pinyin-title">${escapeHtml(data.title_pinyin)}</div>`;
     if (data.artist) html += `<div class="artist">— ${escapeHtml(data.artist)}</div>`;
-    html += '<div class="legend">Cores correspondentes ligam tradução (português), caractere e pinyin do mesmo segmento.</div>';
+    html += '<div class="legend">Cores correspondentes ligam tradução (português), caractere e pinyin da mesma palavra.</div>';
     html += '</header>';
 
     data.refraos.forEach(r => {
@@ -1114,7 +1114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         practice_cols: 14,
         refraos: [
             {
-                label: 'Refrão de exemplo · 1',
+                label: 'Seção de exemplo · 1',
                 lines: [
                     {
                         segments: [
@@ -1189,7 +1189,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 title: '', title_pinyin: '', artist: '',
                 output: 'estudo_mandarim.pdf',
                 practice_rows: 3, practice_cols: 14,
-                refraos: [{ label: 'Refrão 1', lines: [{ segments: [{}] }] }],
+                refraos: [{ label: 'Seção 1', lines: [{ segments: [{}] }] }],
             });
         }
     });
